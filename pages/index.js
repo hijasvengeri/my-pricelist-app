@@ -3372,7 +3372,7 @@ export default function Home() {
             loading={loading} 
             rowKey="id" 
             pagination={false} 
-            scroll={{ x: totalFixedWidth }} 
+            scroll={{ x: 'max-content' }} 
             rowSelection={rowSelection} 
         />
       </div>
