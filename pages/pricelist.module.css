@@ -27,7 +27,6 @@
 
 
 
-
 /* ========================================================= */
 /* 1. Base Styles for Image Generation Table */
 /* ========================================================= */
@@ -54,41 +53,43 @@
 }
 
 /* ========================================================= */
-/* 2. Ant Design Table Wrapper (Desktop layout preserved) */
+/* 2. Ant Design Table Wrapper */
 /* ========================================================= */
 
 .responsivePriceTable {
     width: 100%;
-    overflow-x: auto; /* Enables horizontal scroll on mobile */
+    overflow-x: auto;
+}
+
+/* Force table to expand wider on mobile */
+.responsivePriceTable :global(.ant-table) {
+    width: 100%;
+    min-width: 1400px !important;   /* 🔥 MAIN FIX - increase as needed */
+}
+
+/* Also apply to the container */
+.responsivePriceTable :global(.ant-table-container) {
+    min-width: 1400px !important;
+}
+
+/* Prevent cells from shrinking */
+.responsivePriceTable :global(.ant-table-cell) {
+    white-space: nowrap !important;
 }
 
 /* ========================================================= */
-/* 3. REMOVE all mobile card styles completely */
+/* 3. Reset mobile collapse behavior */
 /* ========================================================= */
 
-/* We explicitly reset everything that tried to change table layout on mobile */
 @media screen and (max-width: 600px) {
 
-    .responsivePriceTable :global(.ant-table-thead),
-    .responsivePriceTable :global(.ant-table-container),
     .responsivePriceTable :global(.ant-table),
-    .responsivePriceTable :global(.ant-table-tbody),
-    .responsivePriceTable :global(.ant-table-row),
-    .responsivePriceTable :global(.ant-table-body),
-    .responsivePriceTable :global(.ant-table-cell),
-    .responsivePriceTable :global(.ant-table-cell)::before {
-        all: unset !important;
-    }
-
-    /* Restore proper table structure */
-    .responsivePriceTable :global(.ant-table) {
-        display: table !important;
-        width: 100% !important;
-    }
-
+    .responsivePriceTable :global(.ant-table-container),
     .responsivePriceTable :global(.ant-table-thead),
     .responsivePriceTable :global(.ant-table-tbody) {
-        display: table-header-group !important;
+        display: table !important;
+        width: 100% !important;
+        min-width: 1400px !important;   /* 🔥 Ensures wide table */
     }
 
     .responsivePriceTable :global(.ant-table-row) {
@@ -101,5 +102,6 @@
         border: 1px solid #ddd !important;
         text-align: center !important;
         vertical-align: middle !important;
+        white-space: nowrap !important;
     }
 }
