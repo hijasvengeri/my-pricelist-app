@@ -3367,6 +3367,7 @@ export default function Home() {
 
       <div ref={visibleTableRef}>
         <Table 
+            className={styles.responsivePriceTable}
             columns={columns} 
             dataSource={paginatedData} 
             loading={loading} 

@@ -1,4 +1,4 @@
-/* pricelist.module.css */
+/* pricelist.module.css
 
 .imageTable {
     width: 100%;
@@ -18,4 +18,136 @@
     background-color: #f2f2f2;
     color: #333;
     font-weight: bold;
+} */
+
+
+
+
+
+
+
+
+/* pricelist.module.css */
+
+/* ========================================================= */
+/* 1. Base Styles for Image Generation Table (Existing Content) */
+/* ========================================================= */
+.imageTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.imageTable th, .imageTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.imageTable th {
+    background-color: #f2f2f2;
+    color: #333;
+    font-weight: bold;
+}
+
+/* ========================================================= */
+/* 2. Responsive Fix for Ant Design Table on Mobile (New Content) */
+/* ========================================================= */
+
+.responsivePriceTable {
+    /* Ensure the wrapper respects the mobile viewport */
+    width: 100%;
+    overflow: hidden; /* Prevent horizontal scrolling outside the media query */
+}
+
+@media screen and (max-width: 600px) {
+    /* 2.1 Hide the original Ant Design table headers */
+    .responsivePriceTable :global(.ant-table-thead) {
+        display: none;
+    }
+
+    /* 2.2 Force Table, Body, and Rows to display as vertical blocks */
+    .responsivePriceTable :global(.ant-table-container),
+    .responsivePriceTable :global(.ant-table),
+    .responsivePriceTable :global(.ant-table-tbody),
+    .responsivePriceTable :global(.ant-table-row) {
+        display: block !important;
+        width: 100% !important;
+        overflow: visible !important;
+    }
+
+    /* Remove horizontal scroll bar that the AntD component adds */
+    .responsivePriceTable :global(.ant-table-body) {
+        overflow-x: hidden !important;
+    }
+
+    /* 2.3 Style the table rows to look like cards */
+    .responsivePriceTable :global(.ant-table-row) {
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding: 5px 0;
+        /* Reset fixed positioning */
+        transform: none !important; 
+        position: relative;
+    }
+    
+    /* 2.4 Style the table cells (tds) */
+    .responsivePriceTable :global(.ant-table-cell) {
+        /* Reset AntD cell properties */
+        display: block !important;
+        width: 100% !important; 
+        border: none !important;
+        border-bottom: 1px solid #eee !important;
+        padding: 8px 10px 8px 50% !important; /* Make room for the data-label */
+        position: relative !important;
+        text-align: right !important;
+        /* Ensure the AntD fixed columns are treated normally */
+        left: auto !important;
+        right: auto !important;
+        z-index: auto !important;
+    }
+
+    /* Hide the selection checkbox cell */
+    .responsivePriceTable :global(.ant-table-selection-column) {
+        padding-left: 10px !important; 
+    }
+
+    /* 2.5 Add the data-label using the pseudo-element (Crucial for displaying headers) */
+    .responsivePriceTable :global(.ant-table-cell)::before {
+        /* Define shared styles for the label */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 45%; 
+        padding: 8px 10px;
+        font-weight: bold;
+        text-align: left;
+        color: #555;
+        content: ""; /* Base content */
+    }
+    
+    /* Mapping column index to content (Based on your 'columns' array order) */
+    /* AntD table has a selection column (col 0), so data columns start at 1 */
+    .responsivePriceTable :global(.ant-table-cell):nth-child(2)::before { content: 'SL No'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(3)::before { content: 'Item'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(4)::before { content: 'Brand'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(5)::before { content: 'Single'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(6)::before { content: '5+'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(7)::before { content: '10+'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(8)::before { content: '20+'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(9)::before { content: '50+'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(10)::before { content: '100+'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(11)::before { content: 'GST'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(12)::before { content: 'MRP'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(13)::before { content: 'Warranty'; } 
+    .responsivePriceTable :global(.ant-table-cell):nth-child(14)::before { content: 'Image'; } 
+    
+    /* 2.6 Remove the bottom border from the last cell in the card */
+    .responsivePriceTable :global(.ant-table-row) :last-child.ant-table-cell {
+        border-bottom: none !important;
+    }
 }
