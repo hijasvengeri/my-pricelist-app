@@ -24,93 +24,120 @@
 
 
 
+/* ------------------------------------------
+   MAIN CONTAINER
+------------------------------------------- */
 
-/* ========================================================= */
-/* 1. Base Styles for Image Generation Table */
-/* ========================================================= */
-
-.imageTable {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
+.container {
+  width: 100%;
+  padding: 20px;
+  overflow-x: hidden;
 }
 
-.imageTable th,
-.imageTable td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-    vertical-align: middle;
+.header {
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
 }
 
-.imageTable th {
-    background-color: #f2f2f2;
-    color: #333;
-    font-weight: bold;
+
+/* ------------------------------------------
+   TABLE WRAPPER (IMPORTANT FOR MOBILE)
+------------------------------------------- */
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* ========================================================= */
-/* 2. Desktop + Mobile Wrapper */
-/* ========================================================= */
 
-.responsivePriceTable {
-    width: 100%;
-    overflow-x: auto;
+/* ------------------------------------------
+   ANT TABLE FIXES (DESKTOP + MOBILE)
+------------------------------------------- */
+
+/* Keep desktop table unaffected */
+.ant-table {
+  width: 100% !important;
 }
 
-/* Force table to expand */
-.responsivePriceTable :global(.ant-table) {
-    width: 100%;
-    min-width: 1400px !important; /* adjust width based on columns */
+/* Prevent table from shrinking on mobile */
+.ant-table-content {
+  min-width: 1400px !important;   /* Adjust table width here */
 }
 
-.responsivePriceTable :global(.ant-table-container) {
-    min-width: 1400px !important;
+/* Ensure table layout stays consistent */
+.ant-table table {
+  table-layout: auto !important;
+  width: max-content !important;
 }
 
-.responsivePriceTable :global(.ant-table-cell) {
-    white-space: nowrap !important;
+/* Prevent column wrap (no squeezing) */
+.ant-table-cell {
+  white-space: nowrap !important;
 }
 
-/* ========================================================= */
-/* 3. FIX MOBILE LAYOUT — FULL WIDTH + NO COLLAPSE */
-/* ========================================================= */
-@media screen and (max-width: 600px) {
+/* Row height consistent */
+.ant-table-row {
+  height: 48px !important;
+}
 
-    /* Make entire page width stretch fully (fix for blank right side) */
-    :global(.ant-layout-content),
-    :global(.ant-pro-page-container),
-    :global(.ant-pro-grid-content),
-    :global(.ant-pro-grid),
-    :global(.ant-table-wrapper),
-    :global(.ant-table-container),
-    .responsivePriceTable {
-        width: 100vw !important;
-        max-width: 100vw !important;
-        overflow-x: auto !important;
-    }
 
-    /* Keep real desktop table on mobile */
-    .responsivePriceTable :global(.ant-table),
-    .responsivePriceTable :global(.ant-table-container),
-    .responsivePriceTable :global(.ant-table-thead),
-    .responsivePriceTable :global(.ant-table-tbody) {
-        display: table !important;
-        width: 100% !important;
-        min-width: 1400px !important; /* Wider table */
-    }
+/* ------------------------------------------
+   BUTTONS
+------------------------------------------- */
 
-    .responsivePriceTable :global(.ant-table-row) {
-        display: table-row !important;
-    }
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
-    .responsivePriceTable :global(.ant-table-cell) {
-        display: table-cell !important;
-        padding: 8px !important;
-        border: 1px solid #ddd !important;
-        text-align: center !important;
-        vertical-align: middle !important;
-        white-space: nowrap !important;
-    }
+.addButton {
+  background-color: #1677ff !important;
+  color: white !important;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.whatsappButton {
+  background-color: #25d366 !important;
+  color: white !important;
+}
+
+
+/* ------------------------------------------
+   SEARCH BAR
+------------------------------------------- */
+
+.searchBar {
+  min-width: 250px;
+}
+
+
+/* ------------------------------------------
+   MOBILE FIXES
+------------------------------------------- */
+
+@media (max-width: 768px) {
+
+  .container {
+    padding: 10px;
+  }
+
+  /* Make buttons smaller on mobile */
+  .buttonGroup {
+    flex-direction: column;
+  }
+
+  .searchBar {
+    width: 100% !important;
+  }
+
+  /* Keep table scrollable but not collapsed */
+  .tableWrapper {
+    overflow-x: scroll !important;
+  }
 }
