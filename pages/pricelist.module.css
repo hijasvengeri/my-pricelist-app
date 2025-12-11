@@ -24,7 +24,6 @@
 
 
 
-
 /* pricelist.module.css */
 
 /* ========================================================= */
@@ -51,7 +50,18 @@
 }
 
 /* ========================================================= */
-/* 2. Responsive Fix for Ant Design Table on Mobile */
+/* 2. Class for Merged Cell Logic (Used in index.js on rowSpan = 0) */
+/* ========================================================= */
+/* This class must exist outside the media query for general styling, 
+   though it will be overridden/used specifically inside the media query. */
+.mergedCellHidden {
+    /* Set to initial/block state by default, but it's the anchor for mobile hiding */
+    display: table-cell; 
+}
+
+
+/* ========================================================= */
+/* 3. Responsive Fix for Ant Design Table on Mobile */
 /* ========================================================= */
 
 .responsivePriceTable {
@@ -61,12 +71,12 @@
 }
 
 @media screen and (max-width: 600px) {
-    /* 2.1 Hide the original Ant Design table headers */
+    /* 3.1 Hide the original Ant Design table headers */
     .responsivePriceTable :global(.ant-table-thead) {
         display: none;
     }
 
-    /* 2.2 Force Table, Body, and Rows to display as vertical blocks */
+    /* 3.2 Force Table, Body, and Rows to display as vertical blocks */
     .responsivePriceTable :global(.ant-table-container),
     .responsivePriceTable :global(.ant-table),
     .responsivePriceTable :global(.ant-table-tbody),
@@ -81,7 +91,7 @@
         overflow-x: hidden !important;
     }
 
-    /* 2.3 Style the table rows to look like cards */
+    /* 3.3 Style the table rows to look like cards */
     .responsivePriceTable :global(.ant-table-row) {
         margin-bottom: 15px;
         border: 1px solid #ccc;
@@ -92,7 +102,7 @@
         position: relative;
     }
     
-    /* 2.4 Style the table cells (tds) */
+    /* 3.4 Style the table cells (tds) */
     .responsivePriceTable :global(.ant-table-cell) {
         display: block !important;
         width: 100% !important; 
@@ -106,18 +116,13 @@
         z-index: auto !important;
     }
     
-    /* 🚨 2.5 FIX FOR MERGED/GROUPED CELLS (SL No and Item) 🚨 */
-    /* Hide the SL No cell (2nd child) when it's empty (merged/rowSpan=0) */
-    .responsivePriceTable :global(.ant-table-row) :global(.ant-table-cell:nth-child(2):empty) {
-        display: none !important;
-    }
-    
-    /* Hide the Item cell (3rd child) when it's empty (merged/rowSpan=0) */
-    .responsivePriceTable :global(.ant-table-row) :global(.ant-table-cell:nth-child(3):empty) {
+    /* 🚨 3.5 CRITICAL FIX: Hide cells where rowSpan=0 🚨 */
+    /* This rule targets the class added in index.js when a cell is a merged continuation. */
+    .responsivePriceTable .mergedCellHidden {
         display: none !important;
     }
 
-    /* 2.6 Add the data-label using the pseudo-element (Crucial for displaying headers) */
+    /* 3.6 Add the data-label using the pseudo-element (Crucial for displaying headers) */
     .responsivePriceTable :global(.ant-table-cell)::before {
         position: absolute;
         top: 0;
@@ -130,8 +135,8 @@
         content: ""; /* Base content */
     }
     
-    /* Mapping column index to content (Based on your 'columns' array order) */
-    /* Col 1 is the Selection Column, so data starts at Col 2 */
+    /* Mapping column index to content (Must match your 'columns' array order) */
+    /* Col 1 is Selection, Col 2 is SL No, Col 3 is Item, etc. */
     .responsivePriceTable :global(.ant-table-cell):nth-child(1)::before { content: none !important; } /* Selection Column (no label) */
     .responsivePriceTable :global(.ant-table-cell):nth-child(2)::before { content: 'SL No'; } 
     .responsivePriceTable :global(.ant-table-cell):nth-child(3)::before { content: 'Item'; } 
@@ -147,7 +152,7 @@
     .responsivePriceTable :global(.ant-table-cell):nth-child(13)::before { content: 'Warranty'; } 
     .responsivePriceTable :global(.ant-table-cell):nth-child(14)::before { content: 'Image'; } 
     
-    /* 2.7 Remove the bottom border from the last cell in the card */
+    /* 3.7 Remove the bottom border from the last cell in the card */
     .responsivePriceTable :global(.ant-table-row) :last-child.ant-table-cell {
         border-bottom: none !important;
     }

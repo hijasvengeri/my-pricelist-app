@@ -2772,8 +2772,8 @@ const getGroupAwareImagePageBoundaries = (groupedData, pageSize) => {
 // ===============================================
 
 const columns = [
-  { title: 'SL No', dataIndex: 'sl_no', key: 'sl_no', align: 'center', onCell: (record) => ({ rowSpan: record.rowSpan }), width: 50, fixed: 'left' },
-  { title: 'Item', dataIndex: 'items', key: 'items', align: 'center', onCell: (record) => ({ rowSpan: record.rowSpan }), render: (text, record) => record.rowSpan > 0 ? text : null, width: 120, fixed: 'left' },
+  { title: 'SL No', dataIndex: 'sl_no', key: 'sl_no', align: 'center', onCell: (record) => ({ rowSpan: record.rowSpan, className: record.rowSpan === 0 ? styles.mergedCellHidden : '' }), width: 50, fixed: 'left' },
+  { title: 'Item', dataIndex: 'items', key: 'items', align: 'center', onCell: (record) => ({ rowSpan: record.rowSpan, className: record.rowSpan === 0 ? styles.mergedCellHidden : '' }), render: (text, record) => record.rowSpan > 0 ? text : null, width: 120, fixed: 'left' },
   { title: 'Brand', dataIndex: 'brand', key: 'brand', align: 'center', width: 80, fixed: 'left', render: (text) => text || '-' },
   { title: 'Single', dataIndex: 'single', key: 'single', align: 'center', render: formatPrice, width: 70 },
   { title: '5+', dataIndex: 'qty_5_plus', key: 'qty_5_plus', align: 'center', render: formatPrice, width: 60 },
