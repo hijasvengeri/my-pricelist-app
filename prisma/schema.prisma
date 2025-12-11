@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =========================================================
+// 1. New Model for Unique Item Names (items_list table)
+// =========================================================
+model ItemsList {
+  // Primary Key (id)
+  id          BigInt    @id @default(autoincrement())
+
+
+  // Item Name (Unique constraint ensures no duplicates)
+  item_name   String    @unique @map("item_name")
+
+  // Relation to Products: One item name can be associated with many products
+  products    Product[] // A list of products linked to this item
+
+  // Timestamp
+  created_at  DateTime? @map("created_at") @default(now()) @db.Timestamp(0)
+
+   // New Sequential Number for the List Itself (if required)
+  sl_no  Int?      @map("sl_no") // New column added here
+  
+  // Map the model name to the table name in your database
+  @@map("items_list")
+}
+
+// =========================================================
+// 2. Updated Product Model (products table)
+// =========================================================
+model Product {
+  // Primary Key (id)
+  id                       BigInt    @id @default(autoincrement())
+
+  // --- RELATIONSHIP: items_list ---
+  // Foreign Key linking to ItemsList (assuming the foreign key is named item_name_fk in your DB)
+  item_name_fk             String    @map("items") // The column 'items' now acts as a foreign key value (the item name string)
+  item                     ItemsList @relation(fields: [item_name_fk], references: [item_name])
+  
+  // Product Details
+  sl_no                    Int       @map("sl_no") 
+  brand                    String?   @map("brand")
+  
+  // Numeric fields (using Decimal for precise numeric/monetary values)
+  single                   Decimal?  @map("single")
+  qty_5_plus               Decimal?  @map("qty_5_plus")
+  qty_10_plus              Decimal?  @map("qty_10_plus")
+  qty_20_plus              Decimal?  @map("qty_20_plus")
+  qty_50_plus              Decimal?  @map("qty_50_plus")
+  qty_100_plus             Decimal?  @map("qty_100_plus")
+  
+  // Price and Details
+  // Note: Changing GST to Decimal is highly recommended for calculation accuracy later
+  gst                      Decimal?  @map("gst") // Changed to Decimal (recommended)
+  mrp                      Decimal?  @map("mrp")
+  warranty                 String?   @map("warranty")
+  product_image            String?   @map("product_image")
+  
+  // Timestamp
+  created_at               DateTime? @map("created_at") @db.Timestamp(0) 
+
+  // Map the model name to the table name in your database
+  @@map("products") 
+}
