@@ -3780,6 +3780,9 @@ export default function Home() {
 
 
 
+
+
+
 const handleSaveAsPdf = async () => {
     if (!JsPDF) { message.error("PDF library not ready."); return; }
     if (selectedRows.length === 0) { message.error("No items selected to export."); return; }
@@ -4208,8 +4211,7 @@ const handleSaveAsPdf = async () => {
             loading={loading} 
             rowKey="id" 
             pagination={false} 
-            // scroll={{ x: 'max-content' }} 
-            scroll={{ x: 1800 }}
+            scroll={{ x: 'max-content' }} 
             rowSelection={rowSelection} 
         />
       </div>
