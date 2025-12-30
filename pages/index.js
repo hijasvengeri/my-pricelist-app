@@ -4209,7 +4209,7 @@ const handleSaveAsPdf = async () => {
             rowKey="id" 
             pagination={false} 
             // scroll={{ x: 'max-content' }} 
-            scroll={{ x: 1400 }}
+            scroll={{ x: 1800 }}
             rowSelection={rowSelection} 
         />
       </div>
