@@ -1341,23 +1341,468 @@
 
 
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Form, Input, InputNumber, Button, Select, Row, Col, Divider, message, Space, Modal, Typography, Upload } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+// import { useState, useEffect, useCallback, useMemo } from 'react';
+// import { Form, Input, InputNumber, Button, Select, Row, Col, Divider, message, Space, Modal, Typography, Upload, AutoComplete } from 'antd';
+// import { PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+// import { supabase } from '../lib/supabaseClient';
+// import Link from 'next/link';
+
+// const { Option } = Select;
+
+// // ------------------------------------------------------------------
+// // --- NESTED COMPONENT: NEW ITEM CREATION MODAL ---
+// // ------------------------------------------------------------------
+
+// const NewItemModal = ({ isVisible, onClose, onCreated, existingItems }) => {
+//     const [form] = Form.useForm();
+//     const [loading, setLoading] = useState(false);
+//     const [brandOptions, setBrandOptions] = useState([]);
+
+//     // --- FIX: Use useEffect to set form values directly ---
+//     useEffect(() => {
+//         const fetchAndSetSlNo = async () => {
+//             const { data: maxSlNoData, error: maxError } = await supabase
+//                 .from('items_list')
+//                 .select('sl_no_list')
+//                 .order('sl_no_list', { ascending: false })
+//                 .limit(1);
+
+//             if (maxError) {
+//                 console.error("Error fetching max SL No:", maxError);
+//                 form.setFieldsValue({ list_sl_no: 1 }); // Default to 1 on error
+//                 return;
+//             }
+
+//             const nextSlNo = (maxSlNoData && maxSlNoData.length > 0) 
+//                 ? (maxSlNoData[0].sl_no_list || 0) + 1 
+//                 : 1;
+
+//             // This line fixes the "Calculation Failed" error by updating the form state
+//             form.setFieldsValue({ list_sl_no: nextSlNo }); 
+//         };
+
+//         if (isVisible) {
+//             fetchAndSetSlNo();
+//         } else {
+//             form.resetFields();
+//         }
+//     }, [isVisible, form]);
+
+
+
+
+//     // Fetch brands associated with a specific item
+//     const fetchBrandsForItem = async (itemName) => {
+//         if (!itemName) {
+//             setBrandOptions([]);
+//             return;
+//         }
+//         const { data: brandData, error } = await supabase
+//             .from('products')
+//             .select('brand')
+//             .eq('items', itemName);
+        
+//         if (!error && brandData) {
+//             const uniqueBrands = [...new Set(brandData.map(b => b.brand))]
+//                 .filter(Boolean)
+//                 .map(brand => ({ value: brand }));
+//             setBrandOptions(uniqueBrands);
+//         }
+//     };
+
+//     const handleCreateNewItem = async (values) => {
+//         try {
+//             setLoading(true);
+
+//             // Validation: Prevent duplicates
+//             if (existingItems.includes(values.item_name)) {
+//                 message.error(`Item "${values.item_name}" already exists.`);
+//                 setLoading(false);
+//                 return;
+//             }
+            
+//             // Check if SL No exists in form values
+//             const finalSlNo = values.list_sl_no; 
+//             if (!finalSlNo) {
+//                 message.error("SL No calculation failed. Please try again.");
+//                 setLoading(false);
+//                 return;
+//             }
+
+//             // Insert into Supabase
+//             const { error } = await supabase
+//                 .from('items_list')
+//                 .insert({ item_name: values.item_name, sl_no_list: finalSlNo });
+
+//             if (error) throw error;
+
+//             message.success(`Item created successfully.`);
+//             onCreated(values.item_name); 
+//             onClose();
+
+//         } catch (error) {
+//             console.error('Item creation error:', error);
+//             message.error(`Creation failed: ${error.message}`);
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+
+//     return (
+//         <Modal
+//             title="Create New Item Name" 
+//             open={isVisible}
+//             onCancel={onClose} 
+//             width={500}
+//             footer={[
+//                 <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
+//                 <Button
+//                     key="submit"
+//                     type="primary"
+//                     loading={loading}
+//                     onClick={() => form.submit()}
+//                 >
+//                     Create Item
+//                 </Button>,
+//             ]}
+//         >
+//             <Form
+//                 form={form}
+//                 layout="vertical"
+//                 name="create_new_item_form"
+//                 onFinish={handleCreateNewItem} 
+//                 style={{ marginTop: 20 }}
+//             >
+//                 <Form.Item
+//                     name="list_sl_no"
+//                     label="List SL No (Auto-calculated)"
+//                 >
+//                     <InputNumber disabled style={{ width: '100%' }} /> 
+//                 </Form.Item>
+
+//                 <Form.Item 
+//                     name="item_name" 
+//                     label="New Item Name" 
+//                     rules={[{ required: true, message: 'Please input the new item name!' }]} 
+//                 >
+//                     <Input placeholder="e.g., HDMI Cable 10m" />
+//                 </Form.Item>
+//             </Form>
+//         </Modal>
+//     );
+// };
+
+// // ------------------------------------------------------------------
+// // --- MAIN COMPONENT: ADD PRODUCT ---
+// // ------------------------------------------------------------------
+
+// export default function AddProduct() {
+//     const [form] = Form.useForm();
+//     const [loading, setLoading] = useState(false);
+//     const [existingItems, setExistingItems] = useState([]);
+//     const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
+//     const [isUploading, setIsUploading] = useState(false);
+//     const [fileList, setFileList] = useState([]); 
+//     const [imageUrl, setImageUrl] = useState(null);
+
+//     const fetchItemsList = useCallback(async () => {
+//         const { data: items, error } = await supabase
+//             .from('items_list')
+//             .select('item_name')
+//             .order('item_name', { ascending: true });
+        
+//         if (!error) {
+//             setExistingItems(items.map(i => i.item_name));
+//         }
+//     }, []);
+
+//     useEffect(() => {
+//         fetchItemsList();
+//     }, [fetchItemsList]);
+
+//     const fetchSlNoByItem = async (itemName) => {
+//         if (!itemName) return null;
+//         const { data, error } = await supabase
+//             .from('items_list')
+//             .select('sl_no_list')
+//             .eq('item_name', itemName)
+//             .single();
+//         return error ? null : data?.sl_no_list;
+//     };
+
+//     // const handleItemChange = async (itemName) => {
+//     //     const newSlNo = await fetchSlNoByItem(itemName);
+//     //     form.setFieldsValue({ sl_no: newSlNo });
+//     // };
+
+
+
+
+
+
+//     const handleNewItemCreated = (newItemName) => {
+//         fetchItemsList();
+//         form.setFieldsValue({ items: newItemName });
+//         handleItemChange(newItemName);
+//     };
+
+//     const customUploadRequest = async ({ file, onSuccess, onError }) => {
+//         setIsUploading(true);
+//         const formData = new FormData();
+//         formData.append('image', file); 
+
+//         try {
+//             const response = await fetch('/api/product-image-upload', {
+//                 method: 'POST',
+//                 body: formData,
+//             });
+//             const result = await response.json();
+//             if (!response.ok) throw new Error(result.error);
+            
+//             onSuccess(result.imageUrl, file); 
+//             setImageUrl(result.imageUrl);
+//             message.success(`Image uploaded.`);
+//         } catch (error) {
+//             onError(error);
+//             message.error(`Upload failed.`);
+//         } finally {
+//             setIsUploading(false);
+//         }
+//     };
+
+
+
+//     const onFinish = async (values) => {
+//     try {
+//         setLoading(true);
+//         const payload = {
+//             ...values,
+//             product_image: imageUrl,
+//             staging_type: 'NEW_PRODUCT', // Mark as new
+//         };
+
+//         // Insert into staged_products instead of products
+//         const { error } = await supabase.from('staged_products').insert([payload]);
+//         if (error) throw error;
+
+//         message.success(`Product sent for approval!`);
+//         form.resetFields();
+//         setImageUrl(null);
+//         setFileList([]);
+//     } catch (error) {
+//         message.error(`Submission failed: ${error.message}`);
+//     } finally {
+//         setLoading(false);
+//     }
+// };
+
+//     return (
+//         <div style={{ padding: 5, margin: '0 auto', maxWidth: 800 }}>
+//             <div style={{ position: 'relative' }}>
+//                 <Link href="/">
+//                     <Button type="default" style={{ position: 'absolute', top: 0, right: 0, color: "blueviolet" }} icon={<ArrowLeftOutlined />}>
+//                         Home
+//                     </Button>
+//                 </Link>
+//                 <h1 style={{ marginBottom: 20 }}>Add New Product</h1>
+//             </div>
+            
+//             <Form form={form} layout="vertical" onFinish={onFinish}>
+//                 <Row gutter={16}>
+//                     <Col span={4}>
+//                         <Form.Item label="SL No" name="sl_no">
+//                             <InputNumber disabled style={{ width: '100%' }} />
+//                         </Form.Item>
+//                     </Col>
+//                     <Col span={12}>
+//                         <Form.Item 
+//                             label="Item Name" 
+//                             name="items" 
+//                             rules={[{ required: true, message: 'Item Name is required' }]}
+//                         >
+//                             <Select 
+//                                 showSearch
+//                                 placeholder="Select Item"
+//                                 onChange={handleItemChange}
+//                                 dropdownRender={menu => (
+//                                     <div>
+//                                         {menu}
+//                                         <Divider style={{ margin: '2px 0' }} />
+//                                         <Space style={{ padding: '2px 4px' }}>
+//                                             <Button type="text" icon={<PlusOutlined />} onClick={() => setIsNewItemModalOpen(true)}>
+//                                                 Create New Item
+//                                             </Button>
+//                                         </Space>
+//                                     </div>
+//                                 )}
+//                             >
+//                                 {existingItems.map(item => (
+//                                     <Option key={item} value={item}>{item}</Option>
+//                                 ))}
+//                             </Select>
+//                         </Form.Item>
+//                     </Col>
+//                     <Col span={8}>
+//                         <Form.Item 
+//                             label="Brand" 
+//                             name="brand" 
+//                             rules={[{ required: true, message: 'Brand is required' }]}
+//                         >
+//                             <AutoComplete
+//                                 placeholder="Search or Type Brand"
+//                                 options={brandOptions}
+//                                 // Logic to filter the list as you type
+//                                 filterOption={(inputValue, option) =>
+//                                     option && option.value 
+//                                         ? option.value.toUpperCase().includes(inputValue.toUpperCase()) 
+//                                         : false
+//                                 }
+//                             >
+//                                 <Input /> 
+//                             </AutoComplete>
+//                         </Form.Item>
+//                     </Col>
+//                 </Row>
+
+//                 {/* <Divider orientation="left">Price List</Divider> */}
+//                 <Row gutter={16}>
+//                     <Col span={8}><Form.Item label="Single Price" name="single"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+//                     <Col span={8}><Form.Item label="5+ Qty" name="qty_5_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+//                     <Col span={8}><Form.Item label="10+ Qty" name="qty_10_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+//                     <Col span={8}><Form.Item label="20+ Qty" name="qty_20_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+//                     <Col span={8}><Form.Item label="50+ Qty" name="qty_50_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+//                     <Col span={8}><Form.Item label="100+ Qty" name="qty_100_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>           
+                
+//                 </Row>
+
+//                 {/* <Divider orientation="left">Product Details</Divider> */}
+//                 <Row gutter={16}>
+//                     <Col span={8}><Form.Item label="GST (%)" name="gst"><InputNumber min={0} max={100} style={{ width: '100%' }} /></Form.Item></Col>
+//                     <Col span={8}><Form.Item label="MRP" name="mrp"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+//                     <Col span={8}><Form.Item label="Warranty" name="warranty"><Input placeholder="e.g., 1 Year" /></Form.Item></Col>
+//                 </Row>
+
+//                 {/* <Form.Item label="Product Image">
+//                     <Upload
+//                         customRequest={customUploadRequest}
+//                         fileList={fileList}
+//                         onChange={({ fileList }) => setFileList(fileList)}
+//                         maxCount={1}
+//                         showUploadList={true}
+//                     >
+//                         {fileList.length < 1 && <Button icon={<PlusOutlined />}>Upload Image</Button>}
+//                     </Upload>
+//                 </Form.Item> */}
+
+
+
+//                 <Form.Item label="Product Image">
+//                         <Upload
+//                             customRequest={customUploadRequest}
+//                             fileList={fileList}
+//                             onChange={({ fileList }) => setFileList(fileList)}
+//                             onRemove={() => {
+//                                 setFileList([]);
+//                                 setImageUrl(null);
+//                             }}
+//                             maxCount={1}
+//                             showUploadList={false} 
+//                         >
+//                             {imageUrl ? (
+//                                 <div style={{ 
+//                                     position: 'relative', 
+//                                     width: 80, 
+//                                     height: 80, 
+//                                     display: 'flex', 
+//                                     alignItems: 'center', 
+//                                     justifyContent: 'center',
+//                                     backgroundColor: '#f5f5f5', // Light background to see the image shape
+//                                     borderRadius: '4px',
+//                                     overflow: 'hidden' 
+//                                 }}>
+//                                     <img 
+//                                         src={imageUrl} 
+//                                         alt="Preview" 
+//                                         style={{ 
+//                                             width: '100%', 
+//                                             height: '100%', 
+//                                             objectFit: 'contain' // Prevents stretching
+//                                         }} 
+//                                     />
+//                                     <Button 
+//                                         type="primary" 
+//                                         danger 
+//                                         shape="circle"
+//                                         size="small"
+//                                         icon={<PlusOutlined style={{ transform: 'rotate(45deg)' }} />} 
+//                                         style={{ position: 'absolute', top: 2, right: 2, zIndex: 10 }}
+//                                         onClick={(e) => {
+//                                             e.stopPropagation();
+//                                             setImageUrl(null);
+//                                             setFileList([]);
+//                                         }}
+//                                     />
+//                                 </div>
+//                             ) : (
+//                                 <Button 
+//                                     icon={<PlusOutlined />} 
+//                                     loading={isUploading}
+//                                     style={{ width: 120, height: 120, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+//                                 >
+//                                     {isUploading ? 'Uploading...' : 'Upload'}
+//                                 </Button>
+//                             )}
+//                         </Upload>
+//                     </Form.Item>
+
+//                 <Form.Item>
+//                     <Button type="primary" htmlType="submit" loading={loading} style={{ width: '100%', height: '40px' }}>
+//                         Add Product
+//                     </Button>
+//                 </Form.Item>
+//             </Form>
+
+//             <NewItemModal 
+//                 isVisible={isNewItemModalOpen}
+//                 onClose={() => setIsNewItemModalOpen(false)}
+//                 onCreated={handleNewItemCreated}
+//                 existingItems={existingItems}
+//             />
+//         </div>
+//     );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { useState, useEffect, useCallback } from 'react';
+import { Form, Input, InputNumber, Button, Select, Row, Col, Divider, message, Space, Modal, Typography, Upload, AutoComplete } from 'antd';
+import { PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const { Option } = Select;
 
 // ------------------------------------------------------------------
 // --- NESTED COMPONENT: NEW ITEM CREATION MODAL ---
 // ------------------------------------------------------------------
-
 const NewItemModal = ({ isVisible, onClose, onCreated, existingItems }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
-    // --- FIX: Use useEffect to set form values directly ---
     useEffect(() => {
         const fetchAndSetSlNo = async () => {
             const { data: maxSlNoData, error: maxError } = await supabase
@@ -1367,8 +1812,7 @@ const NewItemModal = ({ isVisible, onClose, onCreated, existingItems }) => {
                 .limit(1);
 
             if (maxError) {
-                console.error("Error fetching max SL No:", maxError);
-                form.setFieldsValue({ list_sl_no: 1 }); // Default to 1 on error
+                form.setFieldsValue({ list_sl_no: 1 });
                 return;
             }
 
@@ -1376,7 +1820,6 @@ const NewItemModal = ({ isVisible, onClose, onCreated, existingItems }) => {
                 ? (maxSlNoData[0].sl_no_list || 0) + 1 
                 : 1;
 
-            // This line fixes the "Calculation Failed" error by updating the form state
             form.setFieldsValue({ list_sl_no: nextSlNo }); 
         };
 
@@ -1390,35 +1833,21 @@ const NewItemModal = ({ isVisible, onClose, onCreated, existingItems }) => {
     const handleCreateNewItem = async (values) => {
         try {
             setLoading(true);
-
-            // Validation: Prevent duplicates
             if (existingItems.includes(values.item_name)) {
                 message.error(`Item "${values.item_name}" already exists.`);
                 setLoading(false);
                 return;
             }
             
-            // Check if SL No exists in form values
-            const finalSlNo = values.list_sl_no; 
-            if (!finalSlNo) {
-                message.error("SL No calculation failed. Please try again.");
-                setLoading(false);
-                return;
-            }
-
-            // Insert into Supabase
             const { error } = await supabase
                 .from('items_list')
-                .insert({ item_name: values.item_name, sl_no_list: finalSlNo });
+                .insert({ item_name: values.item_name, sl_no_list: values.list_sl_no });
 
             if (error) throw error;
-
             message.success(`Item created successfully.`);
             onCreated(values.item_name); 
             onClose();
-
         } catch (error) {
-            console.error('Item creation error:', error);
             message.error(`Creation failed: ${error.message}`);
         } finally {
             setLoading(false);
@@ -1430,38 +1859,16 @@ const NewItemModal = ({ isVisible, onClose, onCreated, existingItems }) => {
             title="Create New Item Name" 
             open={isVisible}
             onCancel={onClose} 
-            width={500}
             footer={[
-                <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
-                <Button
-                    key="submit"
-                    type="primary"
-                    loading={loading}
-                    onClick={() => form.submit()}
-                >
-                    Create Item
-                </Button>,
+                <Button key="back" onClick={onClose}>Cancel</Button>,
+                <Button key="submit" type="primary" loading={loading} onClick={() => form.submit()}>Create Item</Button>,
             ]}
         >
-            <Form
-                form={form}
-                layout="vertical"
-                name="create_new_item_form"
-                onFinish={handleCreateNewItem} 
-                style={{ marginTop: 20 }}
-            >
-                <Form.Item
-                    name="list_sl_no"
-                    label="List SL No (Auto-calculated)"
-                >
+            <Form form={form} layout="vertical" onFinish={handleCreateNewItem}>
+                <Form.Item name="list_sl_no" label="List SL No">
                     <InputNumber disabled style={{ width: '100%' }} /> 
                 </Form.Item>
-
-                <Form.Item 
-                    name="item_name" 
-                    label="New Item Name" 
-                    rules={[{ required: true, message: 'Please input the new item name!' }]} 
-                >
+                <Form.Item name="item_name" label="New Item Name" rules={[{ required: true }]}>
                     <Input placeholder="e.g., HDMI Cable 10m" />
                 </Form.Item>
             </Form>
@@ -1472,11 +1879,12 @@ const NewItemModal = ({ isVisible, onClose, onCreated, existingItems }) => {
 // ------------------------------------------------------------------
 // --- MAIN COMPONENT: ADD PRODUCT ---
 // ------------------------------------------------------------------
-
 export default function AddProduct() {
     const [form] = Form.useForm();
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [existingItems, setExistingItems] = useState([]);
+    const [brandOptions, setBrandOptions] = useState([]);
     const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [fileList, setFileList] = useState([]); 
@@ -1487,18 +1895,32 @@ export default function AddProduct() {
             .from('items_list')
             .select('item_name')
             .order('item_name', { ascending: true });
-        
-        if (!error) {
-            setExistingItems(items.map(i => i.item_name));
-        }
+        if (!error) setExistingItems(items.map(i => i.item_name));
     }, []);
 
     useEffect(() => {
         fetchItemsList();
     }, [fetchItemsList]);
 
+    const fetchBrandsForItem = async (itemName) => {
+        if (!itemName) {
+            setBrandOptions([]);
+            return;
+        }
+        const { data: brandData, error } = await supabase
+            .from('products')
+            .select('brand')
+            .eq('items', itemName);
+        
+        if (!error && brandData) {
+            const uniqueBrands = [...new Set(brandData.map(b => b.brand))]
+                .filter(Boolean)
+                .map(brand => ({ value: brand }));
+            setBrandOptions(uniqueBrands);
+        }
+    };
+
     const fetchSlNoByItem = async (itemName) => {
-        if (!itemName) return null;
         const { data, error } = await supabase
             .from('items_list')
             .select('sl_no_list')
@@ -1507,9 +1929,11 @@ export default function AddProduct() {
         return error ? null : data?.sl_no_list;
     };
 
+    // --- FIXED: Function defined BEFORE it is used in JSX ---
     const handleItemChange = async (itemName) => {
         const newSlNo = await fetchSlNoByItem(itemName);
-        form.setFieldsValue({ sl_no: newSlNo });
+        form.setFieldsValue({ sl_no: newSlNo, brand: undefined });
+        fetchBrandsForItem(itemName);
     };
 
     const handleNewItemCreated = (newItemName) => {
@@ -1522,15 +1946,10 @@ export default function AddProduct() {
         setIsUploading(true);
         const formData = new FormData();
         formData.append('image', file); 
-
         try {
-            const response = await fetch('/api/product-image-upload', {
-                method: 'POST',
-                body: formData,
-            });
+            const response = await fetch('/api/product-image-upload', { method: 'POST', body: formData });
             const result = await response.json();
             if (!response.ok) throw new Error(result.error);
-            
             onSuccess(result.imageUrl, file); 
             setImageUrl(result.imageUrl);
             message.success(`Image uploaded.`);
@@ -1543,38 +1962,68 @@ export default function AddProduct() {
     };
 
     const onFinish = async (values) => {
-        try {
-            setLoading(true);
-            if (!values.sl_no) {
-                message.error("Please select an item to assign the SL No.");
-                return;
-            }
+    try {
+        setLoading(true);
 
-            const payload = {
-                ...values,
-                product_image: imageUrl, 
-            };
+        // 1. Duplicate Check (as established previously)
+        const { data: existingProduct, error: checkError } = await supabase
+            .from('products')
+            .select('id')
+            .eq('items', values.items)
+            .eq('brand', values.brand)
+            .maybeSingle();
 
-            const { error } = await supabase.from('products').insert([payload]);
-            if (error) throw error;
-
-            message.success(`Product added successfully!`);
-            form.resetFields();
-            setFileList([]);
-            setImageUrl(null);
-        } catch (error) {
-            message.error(`Insertion failed: ${error.message}`);
-        } finally {
+        if (checkError) throw checkError;
+        if (existingProduct) {
+            message.error(`Denied: ${values.brand} ${values.items} already exists!`);
             setLoading(false);
+            return;
         }
-    };
+
+        // 2. Insert into Staging
+        const payload = { 
+            ...values, 
+            product_image: imageUrl, 
+            staging_type: 'NEW_PRODUCT' 
+        };
+
+        const { error: insertError } = await supabase.from('staged_products').insert([payload]);
+        if (insertError) throw insertError;
+
+        // 3. RESTORED LOGGING LOGIC
+        // This records the action in your logs table
+        const { error: logError } = await supabase.from('activity_logs').insert([{
+            action_type: 'SUBMITTED', // Or 'NEW_ENTRY'
+            product_name: values.items,
+            details: `New product [${values.brand}] submitted for approval.`
+        }]);
+
+        if (logError) console.error("Log failed to save:", logError);
+
+        // 4. Success UI and Redirect
+        message.success(`Product sent for approval!`);
+        form.resetFields();
+        setImageUrl(null);
+        setFileList([]);
+        setTimeout(() => router.push('/'), 1000);
+
+    } catch (error) {
+        message.error(`Submission failed: ${error.message}`);
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <div style={{ padding: 20, margin: '0 auto', maxWidth: 800 }}>
             <div style={{ position: 'relative' }}>
                 <Link href="/">
-                    <Button type="default" style={{ position: 'absolute', top: 0, right: 0, color: "blueviolet" }}>
-                        Back to Homepage
+                    <Button 
+                        type="default" 
+                        style={{ position: 'absolute', top: 0, right: 0, color: "blueviolet", borderColor: "blueviolet" }}
+                        icon={<ArrowLeftOutlined />}
+                    >
+                        Home
                     </Button>
                 </Link>
                 <h1 style={{ marginBottom: 20 }}>Add New Product</h1>
@@ -1588,36 +2037,29 @@ export default function AddProduct() {
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item 
-                            label="Item Name" 
-                            name="items" 
-                            rules={[{ required: true, message: 'Item Name is required' }]}
-                        >
-                            <Select 
-                                showSearch
-                                placeholder="Select Item"
-                                onChange={handleItemChange}
-                                dropdownRender={menu => (
-                                    <div>
-                                        {menu}
-                                        <Divider style={{ margin: '4px 0' }} />
-                                        <Space style={{ padding: '4px 8px' }}>
-                                            <Button type="text" icon={<PlusOutlined />} onClick={() => setIsNewItemModalOpen(true)}>
-                                                Create New Item
-                                            </Button>
-                                        </Space>
-                                    </div>
-                                )}
-                            >
-                                {existingItems.map(item => (
-                                    <Option key={item} value={item}>{item}</Option>
-                                ))}
+                        <Form.Item label="Item Name" name="items" rules={[{ required: true }]}>
+                            <Select showSearch placeholder="Select Item" onChange={handleItemChange} dropdownRender={menu => (
+                                <div>
+                                    {menu}
+                                    <Divider style={{ margin: '4px 0' }} />
+                                    <Space style={{ padding: '4px 8px' }}>
+                                        <Button type="text" icon={<PlusOutlined />} onClick={() => setIsNewItemModalOpen(true)}>Create New Item</Button>
+                                    </Space>
+                                </div>
+                            )}>
+                                {existingItems.map(item => <Option key={item} value={item}>{item}</Option>)}
                             </Select>
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="Brand" name="brand" rules={[{ required: true, message: 'Brand is required' }]}>
-                            <Input placeholder="Brand Name" />
+                        <Form.Item label="Brand" name="brand" rules={[{ required: true }]}>
+                            <AutoComplete
+                                options={brandOptions}
+                                placeholder="Search or Type Brand"
+                                filterOption={(input, option) => option.value.toLowerCase().includes(input.toLowerCase())}
+                            >
+                                <Input />
+                            </AutoComplete>
                         </Form.Item>
                     </Col>
                 </Row>
@@ -1627,6 +2069,9 @@ export default function AddProduct() {
                     <Col span={8}><Form.Item label="Single Price" name="single"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
                     <Col span={8}><Form.Item label="5+ Qty" name="qty_5_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
                     <Col span={8}><Form.Item label="10+ Qty" name="qty_10_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+                    <Col span={8}><Form.Item label="20+ Qty" name="qty_20_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+                    <Col span={8}><Form.Item label="50+ Qty" name="qty_50_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+                    <Col span={8}><Form.Item label="100+ Qty" name="qty_100_plus"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
                 </Row>
 
                 <Divider orientation="left">Product Details</Divider>
@@ -1641,26 +2086,27 @@ export default function AddProduct() {
                         customRequest={customUploadRequest}
                         fileList={fileList}
                         onChange={({ fileList }) => setFileList(fileList)}
+                        onRemove={() => { setFileList([]); setImageUrl(null); }}
                         maxCount={1}
-                        showUploadList={true}
+                        showUploadList={false}
                     >
-                        {fileList.length < 1 && <Button icon={<PlusOutlined />}>Upload Image</Button>}
+                        {imageUrl ? (
+                            <div style={{ position: 'relative', width: 120, height: 120, border: '1px solid #d9d9d9', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img src={imageUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                <Button type="primary" danger shape="circle" size="small" icon={<PlusOutlined style={{ transform: 'rotate(45deg)' }} />} style={{ position: 'absolute', top: -5, right: -5 }} onClick={(e) => { e.stopPropagation(); setImageUrl(null); setFileList([]); }} />
+                            </div>
+                        ) : (
+                            <Button icon={<PlusOutlined />} loading={isUploading}>Upload Image</Button>
+                        )}
                     </Upload>
                 </Form.Item>
 
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading} style={{ width: '100%', height: '40px' }}>
-                        Add Product
-                    </Button>
-                </Form.Item>
+                <Button type="primary" htmlType="submit" loading={loading} style={{ width: '100%', height: '40px', marginTop: 20 }}>
+                    Add Product
+                </Button>
             </Form>
 
-            <NewItemModal 
-                isVisible={isNewItemModalOpen}
-                onClose={() => setIsNewItemModalOpen(false)}
-                onCreated={handleNewItemCreated}
-                existingItems={existingItems}
-            />
+            <NewItemModal isVisible={isNewItemModalOpen} onClose={() => setIsNewItemModalOpen(false)} onCreated={handleNewItemCreated} existingItems={existingItems} />
         </div>
     );
 }
