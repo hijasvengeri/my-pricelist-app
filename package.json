@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
+    "@react-pdf/renderer": "^4.3.2",
     "@supabase/supabase-js": "^2.86.0",
     "antd": "^6.0.1",
     "axios": "^1.13.2",
@@ -22,6 +23,7 @@
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
     "next": "^16.0.8",
+    "pdf-lib": "^1.17.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "yup": "^1.7.1"
