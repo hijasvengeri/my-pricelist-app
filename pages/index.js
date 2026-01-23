@@ -993,7 +993,13 @@ const formatPrice = (price) => {
     return `${numericPrice}`; 
 };
 
-const formatGST = (gst) => (gst > 0 ? `${gst}%` : '-');
+// const formatGST = (gst) => (gst > 0 ? `${gst}%` : '-');
+
+const formatGST = (gst) => {
+  const numericGst = parseFloat(gst);
+  if (isNaN(numericGst) || numericGst <= 0) return '-';
+  return `${numericGst}%`;
+};
 
 const getGroupAwareImagePageBoundaries = (groupedData, pageSize) => {
     if (!groupedData || groupedData.length === 0) return [];
@@ -1160,7 +1166,7 @@ const handleSaveAsPdf = async () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `PriceList_Clean.pdf`;
+    link.download = `PriceList.pdf`;
     link.click();
     URL.revokeObjectURL(url);
   } catch (err) {
