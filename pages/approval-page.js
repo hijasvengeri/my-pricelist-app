@@ -1062,18 +1062,18 @@ export default function ApprovalPage() {
 
 
     const columns = [
-        { title: 'SL No', dataIndex: 'sl_no', width: 80 },
-        { title: 'Item', dataIndex: 'items', width: 180 },
-        { title: 'Brand', dataIndex: 'brand', width: 100 },
-        { title: 'Single', dataIndex: 'single', render: v => v || '-' },
-        { title: '5+', dataIndex: 'qty_5_plus', render: v => v || '-' }, 
-        { title: '10+', dataIndex: 'qty_10_plus', render: v => v || '-' },
-        { title: '20+', dataIndex: 'qty_20_plus', render: v => v || '-' }, 
-        { title: '50+', dataIndex: 'qty_50_plus', render: v => v || '-' }, 
-        { title: '100+', dataIndex: 'qty_100_plus', render: v => v || '-' },
-        { title: 'GST%', dataIndex: 'gst', render: v => v ? `${v}%` : '-' },
-        { title: 'MRP', dataIndex: 'mrp', render: v => v || '-' },
-        { title: 'Warranty', dataIndex: 'warranty', render: v => v || '-' },
+        { title: 'SL', dataIndex: 'sl_no', width: 60, align: 'center' },
+        { title: 'Item', dataIndex: 'items', width: 180, align: 'center' },
+        { title: 'Brand', dataIndex: 'brand', width: 180, align: 'center' },
+        { title: 'Single', dataIndex: 'single',width: 80, align: 'center', render: v => v || '-' },
+        { title: '5+', dataIndex: 'qty_5_plus', width: 70,align: 'center', render: v => v || '-' }, 
+        { title: '10+', dataIndex: 'qty_10_plus',width: 70,align: 'center',  render: v => v || '-' },
+        { title: '20+', dataIndex: 'qty_20_plus',width: 70,align: 'center',  render: v => v || '-' }, 
+        { title: '50+', dataIndex: 'qty_50_plus',width: 70,align: 'center',  render: v => v || '-' }, 
+        { title: '100+', dataIndex: 'qty_100_plus', width: 70,align: 'center', render: v => v || '-' },
+        { title: 'GST%', dataIndex: 'gst', width: 70,align: 'center', render: v => v ? `${v}` : '-' },
+        { title: 'MRP', dataIndex: 'mrp', width: 70,align: 'center', render: v => v || '-' },
+        { title: 'Warranty', dataIndex: 'warranty',width: 100, align: 'center',  render: v => v || '-' },
         
         {
             title: 'Image',

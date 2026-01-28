@@ -909,10 +909,25 @@ const fetchBrandsForItem = async (itemName) => {
     }, [fetchData, fetchItemsList]);
 
     const filteredData = useMemo(() => { 
-        if (!searchTerm) return data;
+    let result = data;
+    
+    // 1. Apply Search Filter
+    if (searchTerm) {
         const lower = searchTerm.toLowerCase();
-        return data.filter(p => p.items?.toLowerCase().includes(lower) || p.brand?.toLowerCase().includes(lower));
-    }, [data, searchTerm]);
+        result = data.filter(p => 
+            p.items?.toLowerCase().includes(lower) || 
+            p.brand?.toLowerCase().includes(lower)
+        );
+    }
+    
+    // 2. Forced Ascending Sort by SL No
+    // This creates a new array and sorts it so the original 'data' state remains untouched
+    return [...result].sort((a, b) => {
+        const slA = Number(a.sl_no) || 0;
+        const slB = Number(b.sl_no) || 0;
+        return slA - slB;
+    });
+}, [data, searchTerm]);
 
     const handleSearch = (value) => setSearchTerm(value);
 
@@ -989,35 +1004,70 @@ const fetchBrandsForItem = async (itemName) => {
         }
     };
 
-    const handleDeleteRequest = async (record) => {
-        setLoading(true);
-        try {
-            const { error } = await supabase.from('staged_products').insert([{
-                sl_no: record.sl_no, items: record.items, brand: record.brand,
-                staging_type: 'DELETE_REQUEST', original_product_id: record.id
-            }]);
-            if (error) throw error;
-            message.warning("Delete request sent for admin approval.");
-            fetchData();
-        } catch (error) {
-            message.error(`Request failed: ${error.message}`);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // const handleDeleteRequest = async (record) => {
+    //     setLoading(true);
+    //     try {
+    //         const { error } = await supabase.from('staged_products').insert([{
+    //             sl_no: record.sl_no, items: record.items, brand: record.brand,
+    //             staging_type: 'DELETE_REQUEST', original_product_id: record.id
+    //         }]);
+    //         if (error) throw error;
+    //         message.warning("Delete request sent for admin approval.");
+    //         fetchData();
+    //     } catch (error) {
+    //         message.error(`Request failed: ${error.message}`);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+
+
+
+
+
+const handleDeleteRequest = async (record) => {
+    setLoading(true);
+    try {
+        // 1. Destructure to remove 'id' and UI-only 'key' 
+        // This prevents the "column not found" error
+        const { id, key, ...productData } = record;
+
+        const { error } = await supabase.from('staged_products').insert([{
+            ...productData,              // Sends GST, MRP, and all pricing
+            staging_type: 'DELETE_REQUEST',
+            original_product_id: record.id // Explicitly set the original ID
+        }]);
+
+        if (error) throw error;
+        
+        message.warning("Delete request sent for admin approval.");
+        fetchData();
+    } catch (error) {
+        // This will now catch the specific error if any other columns are missing
+        message.error(`Request failed: ${error.message}`);
+    } finally {
+        setLoading(false);
+    }
+};
+
+
+
+
+
 
     const columns = [
         { title: 'SL No', dataIndex: 'sl_no', width: 60, align: 'center' }, 
         { title: 'Item', dataIndex: 'items', width: 130 },
         { title: 'Brand', dataIndex: 'brand', width: 130 },
-        { title: 'Single', dataIndex: 'single', width: 60, align: 'center', render: v => v > 0 ? `₹${v}` : '-' },
-        { title: '5+', dataIndex: 'qty_5_plus', width: 60, align: 'center', render: v => v > 0 ? `₹${v}` : '-' },
-        { title: '10+', dataIndex: 'qty_10_plus', width: 60, align: 'center', render: v => v > 0 ? `₹${v}` : '-' },
-        { title: '20+', dataIndex: 'qty_20_plus', width: 60, align: 'center', render: v => v > 0 ? `₹${v}` : '-' },
-        { title: '50+', dataIndex: 'qty_50_plus', width: 60, align: 'center', render: v => v > 0 ? `₹${v}` : '-' },
-        { title: '100+', dataIndex: 'qty_100_plus', width: 60, align: 'center', render: v => v > 0 ? `₹${v}` : '-' },
-        { title: 'GST (%)', dataIndex: 'gst', width: 70, align: 'center', render: v => v > 0 ? `${v}%` : '-' },
-        { title: 'MRP', dataIndex: 'mrp', width: 60, align: 'center', render: v => v > 0 ? `₹${v}` : '-' },
+        { title: 'Single', dataIndex: 'single', width: 60, align: 'center', render: v => v > 0 ? `${v}` : '-' },
+        { title: '5+', dataIndex: 'qty_5_plus', width: 60, align: 'center', render: v => v > 0 ? `${v}` : '-' },
+        { title: '10+', dataIndex: 'qty_10_plus', width: 60, align: 'center', render: v => v > 0 ? `${v}` : '-' },
+        { title: '20+', dataIndex: 'qty_20_plus', width: 60, align: 'center', render: v => v > 0 ? `${v}` : '-' },
+        { title: '50+', dataIndex: 'qty_50_plus', width: 60, align: 'center', render: v => v > 0 ? `${v}` : '-' },
+        { title: '100+', dataIndex: 'qty_100_plus', width: 60, align: 'center', render: v => v > 0 ? `${v}` : '-' },
+        { title: 'GST (%)', dataIndex: 'gst', width: 70, align: 'center', render: (v) => (v !== null && v !== undefined) ? `${v}` : '-' },
+        { title: 'MRP', dataIndex: 'mrp', width: 60, align: 'center', render: v => v > 0 ? `${v}` : '-' },
         { title: 'Warranty', dataIndex: 'warranty', width: 80, align: 'center', render: w => w || '-' },
         {
             title: 'Image',
