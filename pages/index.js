@@ -7600,6 +7600,178 @@ for (let i = 0; i < totalIndexPages; i++) {
 
 
 
+// // ---------------------------------------------
+//   // --- Share as Paginated Image (Clipboard + WhatsApp Web) ---
+//   // ---------------------------------------------
+//   const handleShareImage = async () => {
+//     if (selectedRows.length === 0) { message.error("No items selected to share."); return; }
+//     if (!html2canvas) { message.error("Image generation library not ready."); return; }
+
+//     setIsProcessing(true);
+//     const key = 'share-image-process';
+//     message.loading({ content: '1/3. Preparing data...', key });
+    
+//     const sortedData = [...selectedRows].sort((a, b) => (Number(a.sl_no) || 0) - (Number(b.sl_no) || 0));
+//     const groupedSelectedData = getGroupedData(sortedData);
+//     const pageBoundaries = getGroupAwareImagePageBoundaries(groupedSelectedData, IMAGE_PAGE_SIZE);
+//     const pageCount = pageBoundaries.length;
+//     const imageFiles = [];
+
+//     let element = null;
+
+//     try {
+//         element = imagePreviewRef.current;
+//         if (!element) { message.error({ content: 'Failed to find rendering element.', key }); return; }
+
+//         element.style.display = 'block';
+//         element.style.opacity = 1; 
+//         element.style.backgroundColor = '#ffffff'; 
+        
+//         for (let i = 0; i < pageCount; i++) {
+//             const { start: startIndex, end: endIndex } = pageBoundaries[i];
+//             const pageData = groupedSelectedData.slice(startIndex, endIndex);
+
+//             message.loading({ content: `2/3. Generating Page ${i + 1} of ${pageCount}...`, key });
+            
+//             element.innerHTML = `
+//                 <h2 style="text-align: center; margin-bottom: 10px; color: #333;">Selected Price List (Page ${i + 1} of ${pageCount})</h2>
+//                 ${logoBase64 ? `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-repeat: no-repeat; background-position: center center; background-size: 300px; opacity: 0.15; pointer-events: none; z-index: 2;"></div>` : ''}
+//                 <div style="position: relative; z-index: 2; background-color: white; padding-top: 50px;">
+//                     <table class="${styles.imageTable}">
+//                         <thead>
+//                             <tr style="background-color: #f8f9fa !important;">
+//                                 <th style="width: 60px;">SL No</th>
+//                                 <th style="width: 250px; text-align: left; padding-left: 15px;">Item</th>
+//                                 <th style="width: 250px;">Brand</th>
+//                                 <th>Single</th>
+//                                 <th>5+</th>
+//                                 <th>10+</th>
+//                                 <th>20+</th>
+//                                 <th>50+</th>
+//                                 <th>100+</th>
+//                                 <th>GST</th>
+//                                 <th>MRP</th>
+//                                 <th>Warranty</th>
+//                                 <th style="width: 80px;">Image</th>
+//                             </tr>
+//                         </thead>
+//                         <tbody>
+//                             ${pageData.map((row, idx) => `
+//                                 <tr key=${row.key || idx}>
+//                                     <td rowspan="${row.rowSpan > 0 ? row.rowSpan : 1}" style="display: ${row.rowSpan === 0 ? 'none' : 'table-cell'};">${row.sl_no}</td>
+//                                     <td rowspan="${row.rowSpan > 0 ? row.rowSpan : 1}" style="display: ${row.rowSpan === 0 ? 'none' : 'table-cell'};">${row.items}</td>
+//                                     <td>${row.brand || '-'}</td>
+//                                     <td>${formatPrice(row.single)}</td>
+//                                     <td>${formatPrice(row.qty_5_plus)}</td>
+//                                     <td>${formatPrice(row.qty_10_plus)}</td>
+//                                     <td>${formatPrice(row.qty_20_plus)}</td>
+//                                     <td>${formatPrice(row.qty_50_plus)}</td>
+//                                     <td>${formatPrice(row.qty_100_plus)}</td>
+//                                     <td>${formatGST(row.gst)}</td>
+//                                     <td>${formatPrice(row.mrp)}</td>
+//                                     <td>${row.warranty || '-'}</td>
+//                                     <td>
+//                                         ${row.product_image ? `<img src="${row.product_image}" alt="Product" style="width: 50px; height: 50px; object-fit: contain;" crossorigin="anonymous" />` : ''}
+//                                     </td>
+//                                 </tr>
+//                             `).join('')}
+//                         </tbody>
+//                     </table>
+//                 </div>
+//             `;
+            
+//             const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+//             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png')); 
+            
+//             imageFiles.push({
+//                 blob: blob, 
+//                 fileName: `PriceList_P${i + 1}.png`,
+//                 url: URL.createObjectURL(blob)
+//             });
+//         }
+
+//         const copyToClipboard = async (blob) => {
+//             try {
+//                 const data = [new ClipboardItem({ "image/png": blob })];
+//                 await navigator.clipboard.write(data);
+//                 message.success("Copied to Clipboard!");
+//             } catch (err) {
+//                 message.error("Clipboard blocked. Use Download.");
+//             }
+//         };
+
+//         message.destroy(key);
+//         message.info({
+//             content: (
+//                 <div style={{ textAlign: 'left', position: 'relative', paddingTop: '10px' }}>
+//                     {/* CLOSE BUTTON */}
+//                     <div 
+//                         onClick={() => message.destroy('share-ui')} 
+//                         style={{ 
+//                             position: 'absolute', top: '-10px', right: '-10px', 
+//                             cursor: 'pointer', fontSize: '18px', fontWeight: 'bold', 
+//                             padding: '5px', color: '#888' 
+//                         }}
+//                     >
+//                         &times;
+//                     </div>
+
+//                     <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>Share to WhatsApp Web:</p>
+//                     <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+//                         {imageFiles.map((img, index) => (
+//                             <div key={index} style={{ background: '#f5f5f5', padding: '10px', marginBottom: '8px', borderRadius: '6px' }}>
+//                                 <div style={{ marginBottom: '5px', fontSize: '12px' }}>Page {index + 1}</div>
+//                                 <Space>
+//                                     <Button size="small" type="primary" ghost onClick={() => copyToClipboard(img.blob)}>
+//                                         Copy Page
+//                                     </Button>
+//                                     <Button size="small" href={img.url} download={img.fileName}>
+//                                         Download
+//                                     </Button>
+//                                 </Space>
+//                             </div>
+//                         ))}
+//                     </div>
+//                     <Button 
+//                         type="primary" block style={{ backgroundColor: '#25D366', marginTop: '10px' }}
+//                         onClick={() => window.open('https://web.whatsapp.com/', '_blank')}
+//                     >
+//                         Open WhatsApp Web
+//                     </Button>
+//                 </div>
+//             ),
+//             duration: 0, // Manual close only
+//             key: 'share-ui'
+//         });
+
+//     } catch (error) {
+//         message.error(`Sharing failed: ${error.message}`);
+//     } finally { 
+//         if (element) {
+//             element.innerHTML = '';
+//             element.style.display = 'none';
+//         }
+//         setIsProcessing(false); 
+//     }
+//   };
+
+//   const totalFilteredRows = filteredAndGroupedData.length;
+//   const currentPageDataSize = paginatedData.length;
+//   const startRange = currentPageDataSize > 0 ? filteredAndGroupedData.indexOf(paginatedData[0]) + 1 : 0;
+//   const endRange = startRange > 0 ? startRange + currentPageDataSize - 1 : 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ---------------------------------------------
   // --- Share as Paginated Image (Clipboard + WhatsApp Web) ---
   // ---------------------------------------------
@@ -7616,6 +7788,9 @@ for (let i = 0; i < totalIndexPages; i++) {
     const pageBoundaries = getGroupAwareImagePageBoundaries(groupedSelectedData, IMAGE_PAGE_SIZE);
     const pageCount = pageBoundaries.length;
     const imageFiles = [];
+    const logoWithCORS = `${LOGO_URL}${LOGO_URL.includes('?') ? '&' : '?'}t=${new Date().getTime()}`;
+
+
 
     let element = null;
 
@@ -7636,6 +7811,40 @@ for (let i = 0; i < totalIndexPages; i++) {
             element.innerHTML = `
                 <h2 style="text-align: center; margin-bottom: 10px; color: #333;">Selected Price List (Page ${i + 1} of ${pageCount})</h2>
                 ${logoBase64 ? `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-repeat: no-repeat; background-position: center center; background-size: 300px; opacity: 0.15; pointer-events: none; z-index: 2;"></div>` : ''}
+                
+                
+                
+                
+                
+               
+            
+<div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            width: 800px; /* Adjust size as needed */
+            z-index: 9999; /* Forces it to the very front */
+            opacity: 0.06; /* Very low opacity for subtle watermark effect */
+            pointer-events: none; /* Allows clicking through to table if needed */
+            display: flex;
+            justify-content: center;
+        ">
+            <img 
+                src="${logoWithCORS}" 
+                style="width: 100%; height: auto; display: block;" 
+                crossorigin="anonymous" 
+            />
+        </div>
+                
+                
+                
+                
+                
+                
+                
+                
+                
                 <div style="position: relative; z-index: 2; background-color: white; padding-top: 50px;">
                     <table class="${styles.imageTable}">
                         <thead>
