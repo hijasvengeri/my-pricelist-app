@@ -485,7 +485,20 @@ export default function RejectedRequests() {
         { title: '20+', dataIndex: 'qty_20_plus', render: v => v || '-' }, 
         { title: '50+', dataIndex: 'qty_50_plus', render: v => v || '-' }, 
         { title: '100+', dataIndex: 'qty_100_plus', render: v => v || '-' },
-        { title: 'GST%', dataIndex: 'gst', render: v => v ? `${v}%` : '-' },
+        // { title: 'GST%', dataIndex: 'gst', render: v => v ? `${v}%` : '-' },
+        {title: 'GST',dataIndex: 'gst',width: 70,align: 'center',render: (v) => {
+                if (v === null || v === undefined || v === '') return '-';
+
+                const value = String(v).trim();
+
+                // If already contains %, return as-is
+                if (value.includes('%')) return value;
+
+                // Otherwise append %
+                return `${value}%`;
+            }
+            },
+
         { title: 'Warranty', dataIndex: 'warranty', render: v => v || '-' },
         { title: 'MRP', dataIndex: 'mrp', render: v => v || '-' },
         {
