@@ -9,7 +9,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Table, Spin, message } from "antd";
+import { Table, Spin, message, Button } from "antd";
 import { supabase } from "../lib/supabaseClient";
 
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -158,7 +158,7 @@ export default function ManageOrder() {
         {
             title: "SL No",
             dataIndex: "sl_no",
-            width: 80,
+            width: 100,
             align: "center",
 
             render: (value, record, index) => {
@@ -188,7 +188,7 @@ export default function ManageOrder() {
                     rowSpan: isFirst ? span : 0,
                     style: {
                         borderTop: isFirst
-                            ? "3px solid #1677ff"
+                            ? "3px solid #f0f0f0"
                             : "1px solid #f0f0f0",
                     },
                 };
@@ -199,7 +199,7 @@ export default function ManageOrder() {
         {
             title: "Item",
             dataIndex: "items",
-            width: 200,
+            width: 150,
 
             render: (value, record, index) => {
                 const prev = allProducts[index - 1];
@@ -228,7 +228,7 @@ export default function ManageOrder() {
                     rowSpan: isFirst ? span : 0,
                     style: {
                         borderTop: isFirst
-                            ? "3px solid #1677ff"
+                            ? "3px solid #f0f0f0"
                             : "1px solid #f0f0f0",
                     },
                 };
@@ -246,7 +246,7 @@ export default function ManageOrder() {
                         index === 0 ||
                             allProducts[index - 1]?.sl_no !== record.sl_no ||
                             allProducts[index - 1]?.items !== record.items
-                            ? "3px solid #1677ff"
+                            ? "3px solid #f0f0f0"
                             : "1px solid #f0f0f0",
                 },
             }),
@@ -256,14 +256,14 @@ export default function ManageOrder() {
         {
             title: "Brand",
             dataIndex: "brand",
-            width: 200,
+            width: 150,
             onCell: (record, index) => ({
                 style: {
                     borderTop:
                         index === 0 ||
                             allProducts[index - 1]?.sl_no !== record.sl_no ||
                             allProducts[index - 1]?.items !== record.items
-                            ? "3px solid #1677ff"
+                            ? "3px solid #f0f0f0"
                             : "1px solid #f0f0f0",
                 },
             }),
@@ -281,7 +281,7 @@ export default function ManageOrder() {
                         index === 0 ||
                             allProducts[index - 1]?.sl_no !== record.sl_no ||
                             allProducts[index - 1]?.items !== record.items
-                            ? "3px solid #1677ff"
+                            ? "3px solid #f0f0f0"
                             : "1px solid #f0f0f0",
                 },
             }),
@@ -294,7 +294,25 @@ export default function ManageOrder() {
     // =========================
     return (
         <div style={{ padding: 20 }}>
-            <h2>Sort Order Manager</h2>
+            
+
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 15,
+                }}
+            >
+                <h2 style={{ margin: 0 }}>Order Manager</h2>
+
+                <Button
+                    
+                    onClick={() => (window.location.href = "/")}
+                >
+                    ⬅ Home
+                </Button>
+            </div>
 
             {loading ? (
                 <Spin />
