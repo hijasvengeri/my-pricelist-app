@@ -192,6 +192,7 @@ export default function ApprovalPage() {
                 await supabase.from('activity_logs').insert([{
                     action_type: 'DELETED',
                     product_name: record.items,
+                    brand_name: record.brand,
                     details: `Admin approved deletion. (SL: ${record.sl_no})`
                 }]);
             }
@@ -203,6 +204,7 @@ export default function ApprovalPage() {
                 await supabase.from('activity_logs').insert([{
                     action_type: 'APPROVED',
                     product_name: record.items,
+                    brand_name: record.brand,
                     details: 'Admin approved new product entry/resubmission.',
                     remark: remarks
                 }]);
@@ -214,6 +216,7 @@ export default function ApprovalPage() {
                 await supabase.from('activity_logs').insert([{
                     action_type: 'APPROVED',
                     product_name: record.items,
+                    brand_name: record.brand,
                     details: 'Admin approved product edits.'
                 }]);
             }
@@ -232,6 +235,7 @@ export default function ApprovalPage() {
                 await supabase.from('activity_logs').insert([{
                     action_type: 'APPROVED',
                     product_name: record.old_name,
+                    brand_name: record.brand,
                     details: `Item name updated to "${record.new_name}"`
                 }]);
             }
@@ -307,6 +311,7 @@ const processRejection = async (record) => {
         await supabase.from('activity_logs').insert([{
             action_type: 'REJECTED',
             product_name: record.items || record.old_name,
+            brand_name: record.brand,
             details:
                 record.staging_type === 'EDIT_ITEM'
                     ? `Item rename rejected (${record.old_name} → ${record.new_name})`

@@ -137,14 +137,16 @@ export default function LogsPage() {
     // This logic runs every time searchText or logs change
     const filteredData = logs.filter((record) => {
         const name = (record.product_name || '').toLowerCase();
+        const brand = (record.brand_name || '').toLowerCase();
         const details = (record.details || '').toLowerCase();
         const remark = (record.remark || '').toLowerCase();
         const action = (record.action_type || '').toLowerCase();
         const search = searchText.toLowerCase();
 
         return (
-            name.includes(search) || 
-            details.includes(search) || 
+            name.includes(search) ||
+            brand.includes(search) ||
+            details.includes(search) ||
             remark.includes(search) ||
             action.includes(search)
         );
@@ -181,6 +183,17 @@ export default function LogsPage() {
             render: (text) => <Text strong>{text || '-'}</Text>,
         },
         {
+            title: 'Brand',
+            dataIndex: 'brand_name',
+            key: 'brand_name',
+            width: 250,
+            render: (text) => (
+                <Text type={text ? "default" : "secondary"}>
+                    {text || '-'}
+                </Text>
+            ),
+        },
+        {
             title: 'Details',
             dataIndex: 'details',
             key: 'details',
@@ -203,10 +216,10 @@ export default function LogsPage() {
     return (
         <div style={{ padding: 30 }}>
             <Card>
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                     marginBottom: 20,
                     position: 'relative', // Keeps the Title centered relative to this row
                     gap: '20px'           // Adds a safety gap between items
@@ -219,9 +232,9 @@ export default function LogsPage() {
                         <Link href="/">
                             <Button icon={<ArrowLeftOutlined />}>Home</Button>
                         </Link>
-                        <Button 
-                            icon={<ReloadOutlined />} 
-                            onClick={fetchLogs} 
+                        <Button
+                            icon={<ReloadOutlined />}
+                            onClick={fetchLogs}
                             loading={loading}
                         >
                             Refresh
@@ -229,12 +242,12 @@ export default function LogsPage() {
                     </Space>
 
                     {/* CENTER: The Title (Absolute positioned so it doesn't move) */}
-                    <Title 
-                        level={3} 
-                        style={{ 
-                            margin: 0, 
-                            position: 'absolute', 
-                            left: '50%', 
+                    <Title
+                        level={3}
+                        style={{
+                            margin: 0,
+                            position: 'absolute',
+                            left: '50%',
                             transform: 'translateX(-50%)',
                             whiteSpace: 'nowrap' // Prevents title from wrapping on small screens
                         }}

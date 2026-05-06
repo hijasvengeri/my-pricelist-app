@@ -319,6 +319,7 @@ export default function RejectedRequests() {
                 await supabase.from('activity_logs').insert([{
                     action_type: 'RESUBMITTED',
                     product_name: values.items,
+                    brand_name: values.brand,
                     details: 'Rejected product fixed and sent for approval again',
                     remark: `Old rejection: ${editingRecord.remark || 'N/A'}`
                 }]);
@@ -431,6 +432,7 @@ export default function RejectedRequests() {
                         await supabase.from('activity_logs').insert([{
                             action_type: 'DELETED',
                             product_name: deletedName,
+                            brand_name: record.brand,
                             details: 'Rejected item permanently deleted',
                             remark: record.remark || null
                         }]);
@@ -451,6 +453,7 @@ export default function RejectedRequests() {
                         await supabase.from('activity_logs').insert([{
                             action_type: 'DELETED',
                             product_name: deletedName,
+                            brand_name: record.brand,
                             details: 'Rejected product permanently deleted',
                             remark: record.remark || null
                         }]);

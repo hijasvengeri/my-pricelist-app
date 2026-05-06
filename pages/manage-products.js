@@ -251,7 +251,7 @@ const fetchBrandsForItem = async (itemName) => {
             }]);
 
             if (error) throw error;
-            await supabase.from('activity_logs').insert([{ action_type: 'EDIT_REQUEST', product_name: editingRecord.items, details: diffArray.join(' | ') || 'Image updated' }]);
+            await supabase.from('activity_logs').insert([{ action_type: 'EDIT_REQUEST', product_name: editingRecord.items, brand_name: editingRecord.brand, details: diffArray.join(' | ') || 'Image updated' }]);
             
             message.success('Edit request sent for approval');
             handleCancel();
@@ -296,7 +296,7 @@ const handleDeleteRequest = async (record) => {
         }]);
 
         if (error) throw error;
-        
+        await supabase.from('activity_logs').insert([{ action_type: 'DELETE_REQUEST', product_name: record.items, brand_name: record.brand, details: 'Delete request sent for admin approval.' }]);
         message.warning("Delete request sent for admin approval.");
         fetchData();
     } catch (error) {
