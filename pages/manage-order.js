@@ -689,12 +689,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { Table, Spin, message, Button } from "antd";
 import { supabase } from "../lib/supabaseClient";
 
-import { DndContext, closestCenter } from "@dnd-kit/core";
-import {
-    SortableContext,
-    verticalListSortingStrategy,
-    useSortable,
-} from "@dnd-kit/sortable";
+import { DndContext, closestCenter, useSensor, useSensors, MouseSensor, TouchSensor, } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, useSortable, } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 // =========================
@@ -710,6 +706,17 @@ const SortableRow = (props) => {
         transform,
         transition,
     } = useSortable({ id: props["data-row-key"] });
+
+
+    const sensors = useSensors(
+        useSensor(MouseSensor),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 200,      // 👈 important for mobile
+                tolerance: 5,
+            },
+        })
+    );
 
     const index = data.findIndex((i) => i.id === props["data-row-key"]);
     const current = data[index];
@@ -948,7 +955,7 @@ export default function ManageOrder() {
             {loading ? (
                 <Spin />
             ) : (
-                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <DndContext  sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <SortableContext
                         items={allProducts.map((i) => i.id)}
                         strategy={verticalListSortingStrategy}
