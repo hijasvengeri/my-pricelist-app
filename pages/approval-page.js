@@ -26,6 +26,7 @@ export default function ApprovalPage() {
     const [pin, setPin] = useState('');
     const AUTH_PIN = "1234";
     const [editItemData, setEditItemData] = useState([]);
+    const [addItemData, setAddItemData] = useState([]);
 
     // const fetchStagedData = useCallback(async () => {
     //     setLoading(true);
@@ -72,6 +73,7 @@ export default function ApprovalPage() {
             setNewData(productData.filter(d => d.staging_type === 'NEW_PRODUCT'));
             setEditData(productData.filter(d => d.staging_type === 'EDIT_PRODUCT'));
             setDeleteData(productData.filter(d => d.staging_type === 'DELETE_REQUEST'));
+            setAddItemData(itemData.filter(d => d.staging_type === 'ADD_ITEM'));
         }
 
         if (itemError) {
@@ -221,6 +223,23 @@ export default function ApprovalPage() {
                 }]);
             }
 
+            else if (staging_type === 'ADD_ITEM') {
+                const { error } = await supabase
+                    .from('items_list')
+                    .insert([{
+                        sl_no_list: record.sl_no_list,
+                        item_name: record.new_name
+                    }]);
+
+                if (error) throw error;
+
+                await supabase.from('activity_logs').insert([{
+                    action_type: 'APPROVED',
+                    product_name: record.new_name,
+                    details: 'New item approved and added to master list'
+                }]);
+            }
+
             else if (staging_type === 'EDIT_ITEM') {
                 const { error } = await supabase
                     .from('items_list')
@@ -284,47 +303,47 @@ export default function ApprovalPage() {
 
 
 
-const processRejection = async (record) => {
-    try {
-        const tableName =
-            record.staging_type === 'EDIT_ITEM'
-                ? 'staged_items'
-                : 'staged_products';
-
-        // 🛑 Safety check
-        if (!record.id) {
-            console.error("Invalid record:", record);
-            return message.error("Invalid record ID");
-        }
-
-        // ✅ NO Number() anymore
-        const { error } = await supabase
-            .from(tableName)
-            .update({
-                staging_type: 'REJECTED',
-                remark: remarks
-            })
-            .eq('id', record.id); // ✅ works for UUID
-
-        if (error) throw error;
-
-        await supabase.from('activity_logs').insert([{
-            action_type: 'REJECTED',
-            product_name: record.items || record.old_name,
-            brand_name: record.brand,
-            details:
+    const processRejection = async (record) => {
+        try {
+            const tableName =
                 record.staging_type === 'EDIT_ITEM'
-                    ? `Item rename rejected (${record.old_name} → ${record.new_name})`
-                    : `Admin rejected product request.`,
-            remark: remarks
-        }]);
+                    ? 'staged_items'
+                    : 'staged_products';
 
-        message.info('Request moved to Rejected Gallery');
+            // 🛑 Safety check
+            if (!record.id) {
+                console.error("Invalid record:", record);
+                return message.error("Invalid record ID");
+            }
 
-    } catch (err) {
-        message.error(`Rejection failed: ${err.message}`);
-    }
-};
+            // ✅ NO Number() anymore
+            const { error } = await supabase
+                .from(tableName)
+                .update({
+                    staging_type: 'REJECTED',
+                    remark: remarks
+                })
+                .eq('id', record.id); // ✅ works for UUID
+
+            if (error) throw error;
+
+            await supabase.from('activity_logs').insert([{
+                action_type: 'REJECTED',
+                product_name: record.items || record.old_name,
+                brand_name: record.brand,
+                details:
+                    record.staging_type === 'EDIT_ITEM'
+                        ? `Item rename rejected (${record.old_name} → ${record.new_name})`
+                        : `Admin rejected product request.`,
+                remark: remarks
+            }]);
+
+            message.info('Request moved to Rejected Gallery');
+
+        } catch (err) {
+            message.error(`Rejection failed: ${err.message}`);
+        }
+    };
 
 
 
@@ -381,6 +400,36 @@ const processRejection = async (record) => {
         }
     ];
 
+
+    const addItemColumns = [
+        { title: 'SL No', dataIndex: 'sl_no_list', width: 80, align: 'center' },
+        { title: 'New Item Name', dataIndex: 'new_name', width: 300 },
+        {
+            title: 'Action',
+            width: 120,
+            align: 'center',
+            render: (_, record) => (
+                <Space>
+                    <Button
+                        type="primary"
+                        size="small"
+                        icon={<CheckOutlined />}
+                        onClick={() => openApproval(record)}
+                    />
+                    <Button
+                        danger
+                        size="small"
+                        icon={<CloseOutlined />}
+                        onClick={() => openRejection(record)}
+                    />
+                </Space>
+            )
+        }
+    ];
+
+
+
+
     return (
         <div style={{ padding: 30 }}>
             <Card>
@@ -427,6 +476,9 @@ const processRejection = async (record) => {
 
                 <Divider orientation="left"><Tag color="purple">EDIT ITEM NAME REQUESTS</Tag></Divider>
                 <Table columns={editItemColumns} dataSource={editItemData} rowKey="id" loading={loading} pagination={false} />
+
+                <Divider orientation="left"><Tag color="green">NEW ITEM NAME REQUESTS</Tag></Divider>
+                <Table columns={addItemColumns} dataSource={addItemData} rowKey="id" loading={loading} pagination={false} />
             </Card>
 
             {/* Authorization & Remark Modal */}
