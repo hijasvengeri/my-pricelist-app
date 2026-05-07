@@ -708,15 +708,7 @@ const SortableRow = (props) => {
     } = useSortable({ id: props["data-row-key"] });
 
 
-    const sensors = useSensors(
-        useSensor(MouseSensor),
-        useSensor(TouchSensor, {
-            activationConstraint: {
-                delay: 200,      // 👈 important for mobile
-                tolerance: 5,
-            },
-        })
-    );
+
 
     const index = data.findIndex((i) => i.id === props["data-row-key"]);
     const current = data[index];
@@ -751,6 +743,16 @@ export default function ManageOrder() {
 
     const tableWrapperRef = useRef(null);
     const scrollMemory = useRef(0);
+
+    const sensors = useSensors(
+        useSensor(MouseSensor),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 8,
+            },
+        })
+    );
 
     // =========================
     // FETCH DATA
@@ -859,6 +861,16 @@ export default function ManageOrder() {
         }, 0);
     };
 
+
+
+
+    const handleDragStart = () => {
+        if (typeof window !== "undefined" && navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+    };
+
+
     // =========================
     // COLUMNS (UNCHANGED)
     // =========================
@@ -955,7 +967,7 @@ export default function ManageOrder() {
             {loading ? (
                 <Spin />
             ) : (
-                <DndContext  sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                     <SortableContext
                         items={allProducts.map((i) => i.id)}
                         strategy={verticalListSortingStrategy}
