@@ -169,13 +169,15 @@ export default function ApprovalPage() {
 
 
     const processApproval = async (record) => {
+        const stagingRowId = record.id;
+
         const {
-            id,
+            id: removedId,
             staging_type,
             original_product_id,
             remark,
             created_at,
-            rejection_reason, // Also pull this out if it exists in your table
+            rejection_reason,
             ...productData
         } = record;
 
@@ -266,10 +268,12 @@ export default function ApprovalPage() {
                     ? 'staged_items'
                     : 'staged_products';
 
+            console.log("Deleting from:", stagingTable, stagingRowId);
+
             const { error: deleteError } = await supabase
                 .from(stagingTable)
                 .delete()
-                .eq('id', id);
+                .eq('id', stagingRowId);
 
             if (deleteError) throw deleteError;
             message.success('Request Approved successfully');
