@@ -282,25 +282,79 @@ const fetchBrandsForItem = async (itemName) => {
 
 
 
+// const handleDeleteRequest = async (record) => {
+//     setLoading(true);
+//     try {
+//         // 1. Destructure to remove 'id' and UI-only 'key' 
+//         // This prevents the "column not found" error
+//         const { id, key, ...productData } = record;
+
+//         const { error } = await supabase.from('staged_products').insert([{
+//             ...productData,              // Sends GST, MRP, and all pricing
+//             staging_type: 'DELETE_REQUEST',
+//             original_product_id: record.id // Explicitly set the original ID
+//         }]);
+
+//         if (error) throw error;
+//         await supabase.from('activity_logs').insert([{ action_type: 'DELETE_REQUEST', product_name: record.items, brand_name: record.brand, details: 'Delete request sent for admin approval.' }]);
+//         message.warning("Delete request sent for admin approval.");
+//         fetchData();
+//     } catch (error) {
+//         // This will now catch the specific error if any other columns are missing
+//         message.error(`Request failed: ${error.message}`);
+//     } finally {
+//         setLoading(false);
+//     }
+// };
+
+
+
+
+
+
 const handleDeleteRequest = async (record) => {
     setLoading(true);
-    try {
-        // 1. Destructure to remove 'id' and UI-only 'key' 
-        // This prevents the "column not found" error
-        const { id, key, ...productData } = record;
 
-        const { error } = await supabase.from('staged_products').insert([{
-            ...productData,              // Sends GST, MRP, and all pricing
+    try {
+
+        const stagedData = {
+            sl_no: record.sl_no,
+            items: record.items,
+            brand: record.brand,
+            single: record.single,
+            qty_5_plus: record.qty_5_plus,
+            qty_10_plus: record.qty_10_plus,
+            qty_20_plus: record.qty_20_plus,
+            qty_50_plus: record.qty_50_plus,
+            qty_100_plus: record.qty_100_plus,
+            gst: record.gst,
+            mrp: record.mrp,
+            warranty: record.warranty,
+            product_image: record.product_image,
+
             staging_type: 'DELETE_REQUEST',
-            original_product_id: record.id // Explicitly set the original ID
-        }]);
+            original_product_id: record.id
+        };
+
+        const { error } = await supabase
+            .from('staged_products')
+            .insert([stagedData]);
 
         if (error) throw error;
-        await supabase.from('activity_logs').insert([{ action_type: 'DELETE_REQUEST', product_name: record.items, brand_name: record.brand, details: 'Delete request sent for admin approval.' }]);
+
+        await supabase.from('activity_logs').insert([{
+            action_type: 'DELETE_REQUEST',
+            product_name: record.items,
+            brand_name: record.brand,
+            details: 'Delete request sent for admin approval.'
+        }]);
+
         message.warning("Delete request sent for admin approval.");
+
         fetchData();
+
     } catch (error) {
-        // This will now catch the specific error if any other columns are missing
+        console.error(error);
         message.error(`Request failed: ${error.message}`);
     } finally {
         setLoading(false);
