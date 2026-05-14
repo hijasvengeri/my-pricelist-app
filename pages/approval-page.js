@@ -260,7 +260,18 @@ export default function ApprovalPage() {
             }
 
             // Cleanup: Delete from staging area using the staging row's actual ID
-            await supabase.from('staged_items').delete().eq('id', id);
+            // ✅ Remove approved request from correct staging table
+            const stagingTable =
+                staging_type === 'EDIT_ITEM' || staging_type === 'ADD_ITEM'
+                    ? 'staged_items'
+                    : 'staged_products';
+
+            const { error: deleteError } = await supabase
+                .from(stagingTable)
+                .delete()
+                .eq('id', id);
+
+            if (deleteError) throw deleteError;
             message.success('Request Approved successfully');
 
         } catch (error) {
